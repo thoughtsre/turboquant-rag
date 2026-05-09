@@ -8,5 +8,8 @@ dependencies = [
     "matplotlib>=3.10.9",
     "numpy>=2.4.4",
     "polars>=1.40.1",
+    "pyarrow>=24.0.0",
     "scipy>=1.17.1",
+    "sentence-transformers>=5.4.1",
+    "tqdm>=4.67.3",
 ]
