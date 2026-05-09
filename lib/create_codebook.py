@@ -1,3 +1,9 @@
+"""
+Create a codebook for quantization using k-means clustering on samples drawn from a beta distribution. 
+The codebook is generated for different bit widths (1, 2, and 4 bits) and saved as a pickle file in the specified output directory. 
+The beta distribution parameters are set based on the embedding dimension to create a suitable range of values for quantization.
+"""
+
 from scipy.stats import beta
 from scipy.cluster.vq import kmeans
 import pickle as pk

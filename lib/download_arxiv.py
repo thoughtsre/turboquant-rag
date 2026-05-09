@@ -1,3 +1,7 @@
+"""
+Download the arxiv dataset from Kaggle and convert it to parquet format.
+"""
+
 import tempfile
 import urllib.request
 import zipfile

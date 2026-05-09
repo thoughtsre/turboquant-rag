@@ -1,3 +1,8 @@
+"""
+Create embeddings from arxiv dataset using sentence-transformers and save to parquet file.
+The script reads the arxiv metadata parquet file, filters out entries with short abstracts, and creates embeddings for the title and abstract using the "all-MiniLM-L6-v2" model from sentence-transformers. The resulting embeddings are saved to a new parquet file in the specified output directory."
+"""
+
 from argparse import ArgumentParser
 import polars as pl
 from typing import Optional
