@@ -1,6 +1,6 @@
 import numpy as np
 
-def fwht_batch(a, seed=42):
+def fwht_batch(a, seed=42) -> np.ndarray:
     """
     Fast Walsh-Hadamard Transform for a batch of vectors.
     Input 'a' should be shape (batch_size, d), where d is a power of 2.
