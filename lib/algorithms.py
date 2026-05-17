@@ -1,6 +1,9 @@
 import numpy as np
+from typing import Tuple
 
-def fwht_batch(a, seed=42) -> np.ndarray:
+from lib.helpers import pad_zeros
+
+def fwht_batch(a, seed=42, sign_flip: bool = True) -> Tuple[np.ndarray, np.ndarray] | np.ndarray:
     """
     Fast Walsh-Hadamard Transform for a batch of vectors.
     Input 'a' should be shape (batch_size, d), where d is a power of 2.
@@ -10,21 +13,23 @@ def fwht_batch(a, seed=42) -> np.ndarray:
     
     if np.log2(d) % 1 != 0:
         d_pad = 2**int(np.ceil(np.log2(d)))
-        a = np.pad(a, ((0, 0), (0, d_pad - d)), mode='constant')
+        a = pad_zeros(a, d_pad)
         d = d_pad
-        
-    rng = np.random.default_rng(seed)
-    d_signs = rng.choice([1.0, -1.0], size=d)
-    a = a * d_signs
     
-    n = int(np.log2(d))
+    if sign_flip:
+        rng = np.random.default_rng(seed)
+        d_signs = rng.choice([1.0, -1.0], size=d)
+        a = a * d_signs
     
-    for i in range(n):
+    for i in range(np.log2(d).astype(int)):
         stride = 2**i
         # Reshape to isolate the butterfly pairs within each vector
         a = a.reshape(batch_size, -1, 2, stride)
         # Apply the butterfly: sum and difference across the pairs
         a = np.stack([a[:, :, 0, :] + a[:, :, 1, :], 
                       a[:, :, 0, :] - a[:, :, 1, :]], axis=2)
+    
+    if sign_flip:
+        return a.reshape(batch_size, d) / np.sqrt(d), d_signs
     
     return a.reshape(batch_size, d) / np.sqrt(d)

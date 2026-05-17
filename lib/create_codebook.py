@@ -35,7 +35,7 @@ if __name__ == "__main__":
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    bits = [1, 2, 4]
+    bits = [1, 2, 3, 4]
     
     codebook = dict([(f"{i}bits", create_codebook(d=args.embedding_dim, bits=i, num_samples=args.num_samples)) for i in bits])
     
