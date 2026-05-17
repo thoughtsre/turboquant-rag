@@ -5,7 +5,7 @@ import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
 from tqdm import tqdm
-from lib.turboquant.turboquant import quantize_embeddings, pack_bits
+from lib.turboquant.turboquant import quantize_embeddings_polar, pack_bits_polar
 from lib.helpers import check_parquet
 
 
@@ -69,7 +69,7 @@ def create_quantized_embeddings(raw_embeddings_path: str | Path,
         
         batch = batch.with_columns(
             pl.col("embedding")
-            .map_batches(lambda s: quantize_embeddings(s, codebook=codebook, n_bits=n_bits, seed=42), return_dtype=pl.Array(pl.UInt8, rot_embed_dim))
+            .map_batches(lambda s: quantize_embeddings_polar(s, codebook=codebook, n_bits=n_bits, seed=42), return_dtype=pl.Array(pl.UInt8, rot_embed_dim))
             .alias("quantized_embedding")
         )
             
@@ -78,7 +78,7 @@ def create_quantized_embeddings(raw_embeddings_path: str | Path,
         
         batch = batch.with_columns(
             pl.col("quantized_embedding")
-            .map_batches(lambda s: pack_bits(s, n_bits=n_bits), return_dtype=pl.Array(pl.UInt8, packed_embed_dim))
+            .map_batches(lambda s: pack_bits_polar(s, n_bits=n_bits), return_dtype=pl.Array(pl.UInt8, packed_embed_dim))
             .alias("packed_embedding")   
         )
         
