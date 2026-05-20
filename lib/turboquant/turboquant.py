@@ -54,3 +54,32 @@ def pack_bits_polar(s: pl.Series, n_bits: int) -> pl.Series:
     return pl.Series(packed_emb, dtype=pl.Array(pl.UInt8, packed_emb.shape[1]))
 
 
+def calculate_query_distance_lookup_table(query_embedding: np.ndarray, n_bits: int, codebook: dict) -> np.ndarray:
+    
+    assert 8 % n_bits == 0, "8 should be divisible by n_bits"
+    
+    embed_dim = query_embedding.shape
+    
+    assert len(embed_dim) == 2, "Query embedding should be a 2D-array"
+    assert embed_dim[0] == 1, "There should only be 1 query"
+    assert embed_dim[1] % 2 == 0, "Should be multiple of 2 if rotated via FWHT"
+    
+    lut = []
+    
+    n_slots = int(8/n_bits)
+    
+    bit_mask = (1 << n_bits) - 1
+    
+    for i in range(int(2**(n_bits * n_slots))):
+        
+        centroid_ids = [(np.uint(i) >> int(j * n_bits)) & bit_mask for j in range(n_slots-1, -1, -1)]
+        
+        cluster_dists = []
+        
+        for j in range(int(query_embedding.shape[1] // n_slots)):
+        
+            cluster_dists.append(np.sum([query_embedding.flatten()[n_slots*j + idx_delta] * codebook[f"{n_bits}bits"][int(c)] for idx_delta, c in enumerate(centroid_ids)]))
+            
+        lut.append(cluster_dists)
+        
+    return np.array(lut)

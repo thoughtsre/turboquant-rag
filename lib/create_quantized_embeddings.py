@@ -54,11 +54,11 @@ def create_quantized_embeddings(raw_embeddings_path: str | Path,
             
         batch = pl.from_arrow(batch)
         
-        if (pbar.n + batch.height) > total_rows:
+        if (pbar.n + batch.height) > total_rows: # type: ignore
             batch = batch.head(total_rows - pbar.n)
         
         if i == 0:
-            raw_embed_dim = batch["embedding"][0].shape[0]
+            raw_embed_dim = batch["embedding"][0].shape[0] # type: ignore
             
             if not np.log2(raw_embed_dim).is_integer():
                 rot_embed_dim = 2 ** int(np.ceil(np.log2(raw_embed_dim)))
@@ -67,7 +67,7 @@ def create_quantized_embeddings(raw_embeddings_path: str | Path,
                 
             packed_embed_dim = rot_embed_dim // (8 // n_bits) if not with_qjl else rot_embed_dim // (8 // (n_bits+1))
         
-        batch = batch.with_columns(
+        batch = batch.with_columns( # type: ignore
             pl.col("embedding")
             .map_batches(lambda s: quantize_embeddings_polar(s, codebook=codebook, n_bits=n_bits, seed=42), return_dtype=pl.Array(pl.UInt8, rot_embed_dim))
             .alias("quantized_embedding")
