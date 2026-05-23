@@ -200,7 +200,8 @@ class TurboQuantRAG:
             
         assert docs_data_path.exists(), "Document data file not found. Double check path or run `create_embeddings.py` to create document database."
         
-        self.docs = pl.scan_parquet(docs_data_path)
+        self.docs = pl.read_parquet(docs_data_path)
+        self.n_docs = self.docs.height
         
         if isinstance(embeddings_path, str):
             embeddings_path = Path(embeddings_path)
@@ -252,6 +253,6 @@ class TurboQuantRAG:
         else:
             top_scorers = query_scores.select("id", pl.col("mse_score").alias("score")).sort(pl.col("score"), descending=True).head(top_n)#.collect()
         
-        return self.docs.filter(pl.col("id").is_in(top_scorers["id"].to_list())).collect().with_columns(top_scorers["score"])
+        return self.docs.filter(pl.col("id").is_in(top_scorers["id"].to_list()))
         
         
