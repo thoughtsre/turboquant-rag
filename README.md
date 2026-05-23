@@ -30,6 +30,10 @@ uv run python -m lib.download_all_resources
 uv run python demo.py
 ```
 
+## Performance Notes
+- Both the embeddings and documentsa are loaded into memory in the demo. It might take ~8GB of RAM.
+- If you don't have enough RAM, consider [converting the documents dataframe to a lazy Polars dataframe](https://github.com/thoughtsre/turboquant-rag/blob/main/lib/turboquant/turboquant.py#L203)
+
 ![](./static/demo_screenshot.jpg)
 
 ## Creating the embeddings from scratch
