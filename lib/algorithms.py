@@ -48,16 +48,16 @@ def fwht_batch(a: np.ndarray, seed: int = 42, sign_flip: bool = True) -> Tuple[n
     return a
 
 
-def ifwht_batch(a: np.ndarray, d_signs=None) -> np.ndarray:
-    """
-    Inverse Fast Walsh-Hadamard Transform for a batch of vectors.
-    If sign_flip was applied in fwht_batch, the same d_signs must be provided to reverse it.
-    """
-    batch_size, d = a.shape
+# def ifwht_batch(a: np.ndarray, d_signs=None) -> np.ndarray:
+#     """
+#     Inverse Fast Walsh-Hadamard Transform for a batch of vectors.
+#     If sign_flip was applied in fwht_batch, the same d_signs must be provided to reverse it.
+#     """
+#     batch_size, d = a.shape
     
-    a = _fwht(a, d, batch_size)
+#     a = _fwht(a, d, batch_size)
     
-    if d_signs is not None:
-        a = a * d_signs
+#     if d_signs is not None:
+#         a = a * d_signs
     
-    return a
+#     return a

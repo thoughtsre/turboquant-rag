@@ -34,9 +34,13 @@ def create_quantized_embeddings(raw_embeddings_path: str | Path,
         codebook = pkl.load(f)
         
     if isinstance(output_path, str):
-        output_path = output_path.format(n_bits)
+        output_path = output_path.format(n_bits, mse_seed)
         if with_qjl:
-            output_path = output_path.replace(".parquet", "_qjl.parquet")
+            output_path = output_path.replace(".parquet", f"_qjl_seed={qjl_seed}.parquet")
+            
+        if full_data:
+            output_path = output_path.replace(".parquet", "_full_data.parquet")
+            
         output_path = Path(output_path)
     
     assert 8 % n_bits == 0
@@ -71,7 +75,7 @@ def create_quantized_embeddings(raw_embeddings_path: str | Path,
         
         batch = batch.with_columns( # type: ignore
             pl.col("embedding")
-            .map_batches(lambda s: rotate_embeddings_polar(s, seed=mse_seed), return_dtype=pl.Array(pl.UInt8, rot_embed_dim))
+            .map_batches(lambda s: rotate_embeddings_polar(s, seed=mse_seed), return_dtype=pl.Array(pl.Float32, rot_embed_dim))
             .alias("rotated_embedding")
         ).with_columns(
             pl.col("rotated_embedding")
@@ -86,7 +90,7 @@ def create_quantized_embeddings(raw_embeddings_path: str | Path,
         if with_qjl:
 
             batch = batch.with_columns(
-                pl.col("quantized_embedding")
+                pl.col("packed_embedding")
                 .map_batches(lambda s: dequantize_embeddings_polar(s, codebook=codebook, n_bits=n_bits, seed=mse_seed ,orig_embed_dim=raw_embed_dim))
                 .alias("recovered_embedding")
             ).with_columns(
@@ -94,8 +98,8 @@ def create_quantized_embeddings(raw_embeddings_path: str | Path,
                 .alias("residuals")
             ).with_columns(
                 (pl.col("residuals")
-                .map_batches(lambda s: rotate_embeddings_polar(s, qjl_seed), # this is WRONG!!!
-                            return_dtype=pl.Array(pl.UInt8, rot_embed_dim))
+                .map_batches(lambda s: rotate_embeddings_polar(s, qjl_seed), 
+                            return_dtype=pl.Array(pl.Float32, rot_embed_dim))
                 .arr.eval(pl.element() > 0)
                 .map_batches(pack_qjl_bits_polar, return_dtype=pl.Array(pl.UInt8, rot_embed_dim // 8))
                 .alias("packed_qjl_bits")),
@@ -118,7 +122,9 @@ def create_quantized_embeddings(raw_embeddings_path: str | Path,
                 
             if full_data:
                 cols += [
-                    pa.field("embedding", pa.list_(pa.float32(), raw_embed_dim))
+                    pa.field("embedding", pa.list_(pa.float32(), raw_embed_dim)),
+                    pa.field("rotated_embedding", pa.list_(pa.float32(), rot_embed_dim)),
+                    pa.field("quantized_embedding", pa.list_(pa.uint8(), rot_embed_dim))
                 ]
                 
                 if with_qjl:
@@ -150,7 +156,7 @@ if __name__ == "__main__":
     
     parser = ArgumentParser(description="Create quantized embeddings from raw embeddings")
     parser.add_argument("--raw_embeddings_path", type=str, default="./data/processed/arxiv_embeddings.parquet", help="Path to the raw embeddings Parquet file")
-    parser.add_argument("--output_path", type=str, default="./data/processed/arxiv_quantized_embeddings_{}bits.parquet", help="Path to the output quantized embeddings Parquet file")
+    parser.add_argument("--output_path", type=str, default="./data/processed/arxiv_quantized_embeddings_{}bits_seed={}.parquet", help="Path to the output quantized embeddings Parquet file")
     parser.add_argument("--codebook_path", type=str, default="./data/codebook/384d_codebook.pkl", help="Path to the codebook pickle file")
     parser.add_argument("--n_bits", type=int, default=4, help="Number of bits to quantize each dimension to (e.g. 4 for 4-bit quantization)")
     parser.add_argument("--batch_size", type=int, default=30000, help="Batch size for processing embeddings")
