@@ -56,7 +56,7 @@ def root():
                 render_card(row)
 
     with ui.row(align_items="stretch").classes('w-full'):
-        ui.markdown("## thoughtsre: TurboQuant RAG").classes('text-teal-700')
+        ui.markdown("## thoughtsre: TurboQuant Document Retrieval").classes('text-teal-700')
 
     with ui.row(align_items="stretch").classes('w-full'):
         search_input = ui.input(placeholder="Enter your query here...").props('rounded outlined input-class=mx-3 clearable').classes('flex-grow')
