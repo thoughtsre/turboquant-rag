@@ -41,9 +41,8 @@ uv run python demo.py
     - Check the [script arguments](./lib/create_quantized_embeddings.py) to understand how to generate embeddings using different bit lengths
     - Note that the codebook only has centroid coordinates up to 5 bits. Anything more, you will also have to [re-generate the codebook](./lib/create_codebook.py)
 
+![](./static/demo_screenshot.jpg)
 
 ## Performance Notes
 - Both the embeddings and documentsa are loaded into memory in the demo. It might take ~8GB of RAM.
 - If you don't have enough RAM, consider [converting the documents dataframe to a lazy Polars dataframe](https://github.com/thoughtsre/turboquant-rag/blob/main/lib/turboquant/turboquant.py#L203)
-
-![](./static/demo_screenshot.jpg)
