@@ -40,4 +40,5 @@ uv run python demo.py
     - Took 5+ hours on my M4 MacBook Air
 
 3. Create the TurboQuant embeddings: `uv run python -m lib.create_quantized_embeddings --with_qjl`
-    - Check the [script arguments](./lib/create_quantized_embeddings.py)
+    - Check the [script arguments](./lib/create_quantized_embeddings.py) to understand how to generate embeddings using different bit lengths
+    - Note that the codebook only has centroid coordinates up to 5 bits. Anything more, you will also have to [re-generate the codebook](./lib/create_codebook.py)
