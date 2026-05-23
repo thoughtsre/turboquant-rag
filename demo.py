@@ -6,11 +6,16 @@ from lib.turboquant.turboquant import TurboQuantRAG
 
 logger = logging.getLogger(__name__)
 
+CODEBOOK_PATH = "./data/codebook/384d_codebook.pkl"
+DOCS_PATH = "./data/raw/arxiv-metadata-oai-snapshot.parquet"
+EMBEDDINGS_PATH = "./data/processed/arxiv_quantized_embeddings_4bits_seed=42_qjl_seed=24.parquet"
+
+
 rag = TurboQuantRAG(
     4,
-    "./data/codebook/384d_codebook.pkl",
-    "./data/raw/arxiv-metadata-oai-snapshot.parquet",
-    "./data/processed/arxiv_quantized_embeddings_4bits_seed=42_qjl_seed=24.parquet",
+    CODEBOOK_PATH,
+    DOCS_PATH,
+    EMBEDDINGS_PATH,
 )
 
 
