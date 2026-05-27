@@ -18,7 +18,7 @@ def create_quantized_embeddings(raw_embeddings_path: str | Path,
                                 batch_size: int = 30000,
                                 max_rows: int | None = None,
                                 with_qjl: bool =False,
-                                full_data: bool = False) -> None:
+                                full_data: bool = False) -> str | Path:
     
     if isinstance(raw_embeddings_path, str):
         raw_embeddings_path = Path(raw_embeddings_path)
@@ -148,7 +148,7 @@ def create_quantized_embeddings(raw_embeddings_path: str | Path,
     pbar.close()
     writer.close()
     
-    return 
+    return output_path
     
 
 if __name__ == "__main__":
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     
     args= parser.parse_args()
     
-    create_quantized_embeddings(
+    output_path = create_quantized_embeddings(
         raw_embeddings_path=args.raw_embeddings_path,
         output_path=args.output_path,
         codebook_path=args.codebook_path,
@@ -177,4 +177,4 @@ if __name__ == "__main__":
         full_data=args.full_data
     )
     
-    check_parquet(args.output_path.format(args.n_bits))
+    check_parquet(output_path)
